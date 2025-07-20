@@ -1,5 +1,3 @@
-mod tui;
-
 use std::io::{self};
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
