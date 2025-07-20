@@ -1,7 +1,9 @@
+mod tui;
+
 use std::io::{self};
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
-use ratatui::{style::Stylize, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
+use ratatui::{init, style::Stylize, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
 
 #[derive(Default)]
 struct Task {
@@ -75,9 +77,12 @@ impl Widget for &ToDoApp {
     }
 }
 
-fn main() -> io::Result<()>{
-    let mut terminal = ratatui::init();
+fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
+    let mut terminal = tui::init();
     let app_result = ToDoApp::default().run(&mut terminal);
-    ratatui::restore();
-    app_result
+    if let Err(error) = tui::restore() {
+        
+    }
+    
 }
