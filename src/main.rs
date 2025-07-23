@@ -1,7 +1,7 @@
 use std::io::{self};
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
-use ratatui::{style::Stylize, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{self, Constraint, Direction, Layout}, style::Stylize, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
 
 #[derive(Default)]
 struct Task {
@@ -61,17 +61,41 @@ impl ToDoApp {
     fn add_task(&mut self, task:Task) {
         self.tasks.push(task);
     }
+    // タスクの永続保存
+    fn save_tasks(&mut self) {}
 }
 
 // 描画用の処理
 impl Widget for &ToDoApp {
     fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer){
-        let title = Line::from("Todo Manage App".bold());
-        let block = Block::bordered()
-            .title(title.centered())
+        // let title = Line::from("Todo Manage App".bold());
+        // let block = Block::bordered()
+        //     .title(title.centered())
+        //     .border_set(border::THICK);
+
+        // Paragraph::new(Text::from("test!!")).block(block).render(area, buf);
+        let layout = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(vec![Constraint::Percentage(30), Constraint::Percentage(70)])
+            .split(area);
+
+        // 左側のエリア
+        let left_block = Block::bordered()
+            .title(Line::from("Files").centered())
             .border_set(border::THICK);
 
-        Paragraph::new(Text::from("test!!")).block(block).render(area, buf);
+        Paragraph::new(Text::from("left"))
+            .block(left_block)
+            .render(layout[0], buf);
+
+        // 右側のエリア
+        let right_block = Block::bordered()
+            .title(Line::from("right").centered())
+            .border_set(border::THICK);
+
+        Paragraph::new(Text::from("right"))
+            .block(right_block)
+            .render(layout[1], buf);
     }
 }
 
