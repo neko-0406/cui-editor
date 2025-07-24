@@ -76,7 +76,7 @@ impl Widget for &ToDoApp {
         // Paragraph::new(Text::from("test!!")).block(block).render(area, buf);
         let layout = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints(vec![Constraint::Percentage(30), Constraint::Percentage(70)])
+            .constraints(vec![Constraint::Percentage(20), Constraint::Percentage(80)])
             .split(area);
 
         // 左側のエリア
