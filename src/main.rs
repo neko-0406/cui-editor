@@ -68,12 +68,6 @@ impl ToDoApp {
 // 描画用の処理
 impl Widget for &ToDoApp {
     fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer){
-        // let title = Line::from("Todo Manage App".bold());
-        // let block = Block::bordered()
-        //     .title(title.centered())
-        //     .border_set(border::THICK);
-
-        // Paragraph::new(Text::from("test!!")).block(block).render(area, buf);
         let layout = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(vec![Constraint::Percentage(20), Constraint::Percentage(80)])
