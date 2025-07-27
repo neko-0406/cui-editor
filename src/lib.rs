@@ -1,6 +1,6 @@
-use std::io;
+use std::{io};
 
-use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{layout::{Constraint, Direction, Layout}, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
 
 #[derive(Default)]
@@ -10,12 +10,22 @@ pub struct Task {
     pub title: String,
     pub description: String,
     pub completed: bool,
+    pub group_id: String
+}
+
+#[derive(Default)]
+pub struct TaskGroup {
+    pub id: String,
+    pub title: String
 }
 
 #[derive(Default)]
 pub struct ToDoApp {
     pub tasks: Vec<Task>,
+    pub task_group: Vec<TaskGroup>,
     pub exit: bool,
+    pub selected_group_id: String,
+    pub selected_task_id: String
 }
 
 // 実行、描画、イベントハンドル
@@ -44,8 +54,8 @@ impl ToDoApp {
     }
     // キーイベントハンドリング
     fn handle_key_event(&mut self, key_event: KeyEvent) {
-        match key_event.code {
-            KeyCode::Char('q') => self.exit(),
+        match (key_event.modifiers, key_event.code) {
+            (KeyModifiers::CONTROL ,KeyCode::Char('q')) => self.exit(),
             _ => {}
         }
     }
