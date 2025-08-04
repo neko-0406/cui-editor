@@ -1,24 +1,29 @@
-use std::{io};
+use std::{env::current_dir, io::{self, Error}};
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{layout::{Constraint, Direction, Layout}, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
+// use setting;
 
 #[derive(Default)]
 pub struct ToDoApp {
     pub file_manager_width: u16,
-    pub open_folder_path: Option<String>,
-    pub folder_opened: bool,
+    pub file_item: Option<FileItem>,
     pub exit: bool,
 }
 
 // 実行、描画、イベントハンドル
 impl ToDoApp {
     // アプリの変数初期化
-    pub fn new() -> Self {
-        Self { file_manager_width: 20, open_folder_path: None, folder_opened: false, exit: false }
+    pub fn new() -> Result<Self, Error> {
+        let mut app = Self { file_manager_width: 20, file_item: None, exit: false };
+        // 呼び出された現在のフォルダを開く
+        let current_dir = current_dir()?;
+        let root_item = FileItem::read_tree(current_dir)?;
+        app.file_item = Some(root_item);
+        Ok(app)
     }
     // メインプロセスの実行
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
@@ -61,20 +66,23 @@ impl ToDoApp {
 
 // 描画用の処理
 impl Widget for &ToDoApp {
-    fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer){
+    fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
         let layout = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(vec![Constraint::Percentage(self.file_manager_width), Constraint::Percentage(100-self.file_manager_width)])
             .split(area);
 
         // 左側のエリア
-        let left_block = Block::bordered()
-            .title(Line::from("File Manager").centered())
-            .border_set(border::THICK);
+        // 現在のディレクトリツリーを表示
+        if let Some(root_item) = self.file_item.as_ref() {
+            let left_block = Block::bordered()
+                .title(Line::from(root_item.get_name()).centered())
+                .border_set(border::THICK);
 
-        Paragraph::new(Text::from("選択されていません"))
-            .block(left_block)
-            .render(layout[0], buf);
+            Paragraph::new(Text::from("選択されていません"))
+                .block(left_block)
+                .render(layout[0], buf);
+        }
 
         // 右側のエリア
         let right_block = Block::bordered()
