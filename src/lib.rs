@@ -3,17 +3,22 @@ use std::{io};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{layout::{Constraint, Direction, Layout}, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
 
+mod file_manager;
+use file_manager::FileItem;
+
 #[derive(Default)]
 pub struct ToDoApp {
     pub file_manager_width: u16,
-    pub open_folder_path: String,
+    pub open_folder_path: Option<String>,
+    pub folder_opend: bool,
     pub exit: bool,
 }
 
 // 実行、描画、イベントハンドル
 impl ToDoApp {
+    // アプリの変数初期化
     pub fn new() -> Self {
-        Self { file_manager_width: 20, open_folder_path: String::from(""), exit: false }
+        Self { file_manager_width: 20, open_folder_path: None, folder_opend: false, exit: false }
     }
     // メインプロセスの実行
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
@@ -67,7 +72,7 @@ impl Widget for &ToDoApp {
             .title(Line::from("File Manager").centered())
             .border_set(border::THICK);
 
-        Paragraph::new(Text::from("ファイル1.md"))
+        Paragraph::new(Text::from("選択されていません"))
             .block(left_block)
             .render(layout[0], buf);
 
