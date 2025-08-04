@@ -10,7 +10,7 @@ use file_manager::FileItem;
 pub struct ToDoApp {
     pub file_manager_width: u16,
     pub open_folder_path: Option<String>,
-    pub folder_opend: bool,
+    pub folder_opened: bool,
     pub exit: bool,
 }
 
@@ -18,7 +18,7 @@ pub struct ToDoApp {
 impl ToDoApp {
     // アプリの変数初期化
     pub fn new() -> Self {
-        Self { file_manager_width: 20, open_folder_path: None, folder_opend: false, exit: false }
+        Self { file_manager_width: 20, open_folder_path: None, folder_opened: false, exit: false }
     }
     // メインプロセスの実行
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
