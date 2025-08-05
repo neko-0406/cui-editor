@@ -79,9 +79,11 @@ impl Widget for &ToDoApp {
                 .title(Line::from(root_item.get_name()).centered())
                 .border_set(border::THICK);
 
-            Paragraph::new(Text::from("選択されていません"))
-                .block(left_block)
-                .render(layout[0], buf);
+            
+
+            // Paragraph::new(Text::from("選択されていません"))
+            //     .block(left_block)
+            //     .render(layout[0], buf);
         }
 
         // 右側のエリア

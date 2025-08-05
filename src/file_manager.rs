@@ -4,7 +4,8 @@ use std::{io, path::{Path, PathBuf}};
 pub struct FileItem {
     name: String,
     path: PathBuf,
-    items: Option<Vec<Self>>
+    items: Option<Vec<Self>>,
+    is_open: Option<bool>
 }
 
 impl FileItem {
@@ -17,13 +18,15 @@ impl FileItem {
             Self {
                 name: file_name.to_owned(),
                 path: item_path.to_path_buf(),
-                items: Some(Vec::new())
+                items: Some(Vec::new()),
+                is_open: Some(true)
             }
         } else {
             Self {
                 name: file_name.to_owned(),
                 path: item_path.to_path_buf(),
-                items: None
+                items: None,
+                is_open: None
             }
         }
     }
