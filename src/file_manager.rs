@@ -56,7 +56,7 @@ impl FileItem {
         None
     }
     // 再帰的にツリーの構築
-    pub fn read_tree(root_path: PathBuf) -> Result<Self, io::Error> {
+    pub fn read_tree(root_path: PathBuf) -> Result<FileItem, io::Error> {
         if root_path.is_file() {
             return Ok(FileItem::new(&root_path));
         } else {
@@ -75,6 +75,34 @@ impl FileItem {
                 }
             }
             return Ok(file_item);
+        }
+    }
+    // ツリーを文字列のリストとして表現
+    pub fn tree_to_string(&self) -> Vec<String> {
+        let mut result: Vec<String> = Vec::new();
+        self.flatten_tree(&mut result, 0);
+        result
+    }
+
+    fn flatten_tree(&self, result: &mut Vec<String>, level: usize) {
+        // インデントの作成
+        let indent = " ".repeat(level);
+        // アイコンの選定
+        let icon = if self.items.is_some() {
+            if self.is_open.unwrap_or(false) {"▶"} else {"▼"}
+        } else {
+            ""
+        };
+        // 今のアイテムを追加
+        result.push(format!("{}{} {}", indent, icon, self.name));
+
+        // 子アイテムがあって、開いてたら再帰処理
+        if let Some(items) = &self.items {
+            if self.is_open.unwrap_or(false) {
+                for item in items {
+                    item.flatten_tree(result, level + 1);
+                }
+            }
         }
     }
 }

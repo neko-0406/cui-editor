@@ -1,7 +1,7 @@
-use std::{env::current_dir, io::{self, Error}};
+use std::{cell::RefCell, env::current_dir, io::{self, Error}};
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{layout::{Constraint, Direction, Layout}, symbols::border, text::{Line, Text}, widgets::{Block, ListState, Paragraph, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, Borders, List, ListState, Paragraph, StatefulWidget, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
@@ -12,13 +12,14 @@ pub struct ToDoApp {
     pub file_manager_width: u16,
     pub file_item: Option<FileItem>,
     pub exit: bool,
+    pub tree_state: RefCell<ListState>
 }
 
 // 実行、描画、イベントハンドル
 impl ToDoApp {
     // アプリの変数初期化
     pub fn new() -> Result<Self, Error> {
-        let mut app = Self { file_manager_width: 20, file_item: None, exit: false };
+        let mut app = Self { file_manager_width: 20, file_item: None, exit: false, tree_state: RefCell::new(ListState::default()) };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
         let root_item = FileItem::read_tree(current_dir)?;
@@ -66,7 +67,7 @@ impl ToDoApp {
 }
 
 // 描画用の処理
-impl Widget for &ToDoApp {
+impl Widget for & ToDoApp {
     fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
         let layout = Layout::default()
             .direction(Direction::Horizontal)
@@ -80,7 +81,13 @@ impl Widget for &ToDoApp {
                 .title(Line::from(root_item.get_name()).centered())
                 .border_set(border::THICK);
 
-            
+            let tree_items: Vec<String> = root_item.tree_to_string();
+            let tree = List::new(tree_items)
+                .block(left_block)
+                .highlight_style(Style::default().bg(Color::LightGreen).add_modifier(Modifier::BOLD))
+                .highlight_symbol(">> ");
+
+            StatefulWidget::render(tree, layout[0], buf, &mut *self.tree_state.borrow_mut());
 
             // Paragraph::new(Text::from("選択されていません"))
             //     .block(left_block)
