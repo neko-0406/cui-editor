@@ -88,10 +88,6 @@ impl Widget for & ToDoApp {
                 .highlight_symbol(">> ");
 
             StatefulWidget::render(tree, layout[0], buf, &mut *self.tree_state.borrow_mut());
-
-            // Paragraph::new(Text::from("選択されていません"))
-            //     .block(left_block)
-            //     .render(layout[0], buf);
         }
 
         // 右側のエリア
