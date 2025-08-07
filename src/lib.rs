@@ -1,7 +1,7 @@
 use std::{env::current_dir, io::{self, Error}};
 
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{layout::{Constraint, Direction, Layout}, symbols::border, text::{Line, Text}, widgets::{Block, Paragraph, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout}, symbols::border, text::{Line, Text}, widgets::{Block, ListState, Paragraph, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
@@ -38,6 +38,7 @@ impl ToDoApp {
     fn draw(&self, frame: &mut Frame) {
         frame.render_widget(self, frame.area());
     }
+    // イベントハンドリング
     fn handle_events(&mut self) -> io::Result<()> {
         match event::read()? {
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {

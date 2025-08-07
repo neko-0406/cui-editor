@@ -44,10 +44,16 @@ impl FileItem {
     }
     // 子リストにアイテムを追加
     pub fn add_item(&mut self, item: FileItem) {
-        // let mut items = self.items?;
         if let Some(items) = &mut self.items {
             items.push(item);
         }
+    }
+    // フォルダの状態を取得
+    pub fn get__dir_opened(&self) -> Option<bool> {
+        if let Some(opened) = self.is_open {
+            return Some(opened)
+        }
+        None
     }
     // 再帰的にツリーの構築
     pub fn read_tree(root_path: PathBuf) -> Result<Self, io::Error> {
