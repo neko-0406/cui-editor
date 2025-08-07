@@ -19,7 +19,7 @@ impl FileItem {
                 name: file_name.to_owned(),
                 path: item_path.to_path_buf(),
                 items: Some(Vec::new()),
-                is_open: Some(true)
+                is_open: Some(false)
             }
         } else {
             Self {
@@ -49,7 +49,7 @@ impl FileItem {
         }
     }
     // フォルダの状態を取得
-    pub fn get__dir_opened(&self) -> Option<bool> {
+    pub fn _get__dir_opened(&self) -> Option<bool> {
         if let Some(opened) = self.is_open {
             return Some(opened)
         }
@@ -77,10 +77,18 @@ impl FileItem {
             return Ok(file_item);
         }
     }
-    // ツリーを文字列のリストとして表現
-    pub fn tree_to_string(&self) -> Vec<String> {
+
+    // ルートフォルダを表示せずに、その中身だけを表示
+    pub fn tree_to_string_without_root(&self) -> Vec<String> {
         let mut result: Vec<String> = Vec::new();
-        self.flatten_tree(&mut result, 0);
+        
+        // ルートの子要素があれば、それらを直接表示
+        if let Some(items) = &self.items {
+            for item in items {
+                item.flatten_tree(&mut result, 0); // レベル0から開始
+            }
+        }
+        
         result
     }
 
@@ -89,7 +97,7 @@ impl FileItem {
         let indent = " ".repeat(level);
         // アイコンの選定
         let icon = if self.items.is_some() {
-            if self.is_open.unwrap_or(false) {"▶"} else {"▼"}
+            if self.is_open.unwrap_or(false) {"▼"} else {"▶"}
         } else {
             ""
         };

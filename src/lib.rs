@@ -34,7 +34,6 @@ impl ToDoApp {
         }
         Ok(())
     }
-
     // UIの描画
     fn draw(&self, frame: &mut Frame) {
         frame.render_widget(self, frame.area());
@@ -81,11 +80,10 @@ impl Widget for & ToDoApp {
                 .title(Line::from(root_item.get_name()).centered())
                 .border_set(border::THICK);
 
-            let tree_items: Vec<String> = root_item.tree_to_string();
+            let tree_items: Vec<String> = root_item.tree_to_string_without_root();
             let tree = List::new(tree_items)
                 .block(left_block)
-                .highlight_style(Style::default().bg(Color::LightGreen).add_modifier(Modifier::BOLD))
-                .highlight_symbol(">> ");
+                .highlight_style(Style::default().bg(Color::LightGreen).add_modifier(Modifier::BOLD));
 
             StatefulWidget::render(tree, layout[0], buf, &mut *self.tree_state.borrow_mut());
         }
