@@ -12,14 +12,21 @@ pub struct ToDoApp {
     pub file_manager_width: u16,
     pub file_item: Option<FileItem>,
     pub exit: bool,
-    pub tree_state: RefCell<ListState>
+    pub tree_state: RefCell<ListState>,
+    pub focus_file_manager: bool
 }
 
 // 実行、描画、イベントハンドル
 impl ToDoApp {
     // アプリの変数初期化
     pub fn new() -> Result<Self, Error> {
-        let mut app = Self { file_manager_width: 20, file_item: None, exit: false, tree_state: RefCell::new(ListState::default()) };
+        let mut app = Self {
+            file_manager_width: 20,
+            file_item: None,
+            exit: false,
+            tree_state: RefCell::new(ListState::default()),
+            focus_file_manager: true
+        };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
         let root_item = FileItem::read_tree(current_dir)?;
@@ -55,6 +62,29 @@ impl ToDoApp {
             _ => {}
         }
     }
+
+    // ファイルマネージャーの操作
+    // 選択解除
+    fn select_none(&mut self) {
+        self.tree_state.borrow_mut().select(None);
+    }
+    // 1個後へ
+    fn select_next(&mut self) {
+        self.tree_state.borrow_mut().select_next();
+    }
+    // 1個前へ
+    fn select_previous(&mut self) {
+        self.tree_state.borrow_mut().select_previous();
+    }
+    // 最初の場所へ
+    fn select_first(&mut self) {
+        self.tree_state.borrow_mut().select_first();
+    }
+    // 最後の場所へ
+    fn select_last(&mut self) {
+        self.tree_state.borrow_mut().select_last();
+    }
+
 }
 
 // アプリの状態変更用の関数
