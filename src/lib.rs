@@ -16,7 +16,7 @@ pub struct ToDoApp {
 
 // フォーカス制御用の列挙
 #[derive(Clone, Copy)]
-enum AppFocus {
+pub enum AppFocus {
     FileManager,
     Editor,
 }
@@ -69,6 +69,8 @@ impl ToDoApp {
             (AppFocus::FileManager, KeyModifiers::CONTROL, KeyCode::Up) => self.select_first(),
             (AppFocus::FileManager, KeyModifiers::CONTROL, KeyCode::Down) => self.select_last(),
             (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Esc) => self.select_none(),
+            (AppFocus::FileManager, KeyModifiers::SHIFT, KeyCode::Right) => self.change_large(),
+            (AppFocus::FileManager, KeyModifiers::SHIFT, KeyCode::Left) => self.change_small(),
             _ => {}
         }
         
@@ -100,6 +102,14 @@ impl ToDoApp {
     fn select_last(&mut self) {
         self.tree_state.borrow_mut().select_last();
     }
+    // 表示枠を大きく
+    fn change_large(&mut self) {
+        self.file_manager_width += 5;
+    }
+    // 表示枠を小さく
+    fn change_small(&mut self) {
+        self.file_manager_width -= 5;
+    }
 
 }
 
@@ -129,7 +139,7 @@ impl Widget for & ToDoApp {
             let tree_items: Vec<String> = root_item.tree_to_string_without_root();
             let tree = List::new(tree_items)
                 .block(left_block)
-                .highlight_style(Style::default().bg(Color::LightGreen).add_modifier(Modifier::BOLD));
+                .highlight_style(Style::default().bg(Color::Cyan).add_modifier(Modifier::BOLD));
 
             StatefulWidget::render(tree, layout[0], buf, &mut *self.tree_state.borrow_mut());
         }
