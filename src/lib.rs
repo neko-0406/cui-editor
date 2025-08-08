@@ -6,14 +6,19 @@ use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, 
 mod file_manager;
 use file_manager::FileItem;
 // use setting;
-
-#[derive(Default)]
 pub struct ToDoApp {
     pub file_manager_width: u16,
     pub file_item: Option<FileItem>,
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
-    pub focus_file_manager: bool
+    pub app_focus: AppFocus
+}
+
+// フォーカス制御用の列挙
+#[derive(Clone, Copy)]
+enum AppFocus {
+    FileManager,
+    Editor,
 }
 
 // 実行、描画、イベントハンドル
@@ -25,7 +30,7 @@ impl ToDoApp {
             file_item: None,
             exit: false,
             tree_state: RefCell::new(ListState::default()),
-            focus_file_manager: true
+            app_focus: AppFocus::FileManager
         };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
@@ -57,6 +62,17 @@ impl ToDoApp {
     }
     // キーイベントハンドリング
     fn handle_key_event(&mut self, key_event: KeyEvent) {
+        // ファイルマネージャー
+        match (self.app_focus, key_event.modifiers, key_event.code) {
+            (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Down) => self.select_next(),
+            (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Up) => self.select_previous(),
+            (AppFocus::FileManager, KeyModifiers::CONTROL, KeyCode::Up) => self.select_first(),
+            (AppFocus::FileManager, KeyModifiers::CONTROL, KeyCode::Down) => self.select_last(),
+            (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Esc) => self.select_none(),
+            _ => {}
+        }
+        
+        // グローバル
         match (key_event.modifiers, key_event.code) {
             (KeyModifiers::CONTROL ,KeyCode::Char('q')) => self.exit(),
             _ => {}
