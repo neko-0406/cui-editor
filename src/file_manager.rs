@@ -97,9 +97,9 @@ impl FileItem {
         let indent = " ".repeat(level);
         // アイコンの選定
         let icon = if self.items.is_some() {
-            if self.is_open.unwrap_or(false) {"▼"} else {"▶"}
+            if self.is_open.unwrap_or(false) {"📂"} else {"📁"}
         } else {
-            ""
+            "📄"
         };
         // 今のアイテムを追加
         result.push(format!("{}{} {}", indent, icon, self.name));
