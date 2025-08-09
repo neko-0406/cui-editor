@@ -8,6 +8,7 @@ use file_manager::FileItem;
 // use setting;
 pub struct ToDoApp {
     pub file_manager_width: u16,
+    pub file_manage_path: String,
     pub file_item: Option<FileItem>,
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
@@ -27,6 +28,7 @@ impl ToDoApp {
     pub fn new() -> Result<Self, Error> {
         let mut app = Self {
             file_manager_width: 20,
+            file_manage_path: String::new(),
             file_item: None,
             exit: false,
             tree_state: RefCell::new(ListState::default()),
