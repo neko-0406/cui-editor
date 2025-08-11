@@ -10,6 +10,7 @@ pub struct ToDoApp {
     pub file_manager_width: u16,
     pub file_manage_path: String,
     pub file_item: Option<FileItem>,
+    pub file_item_str: Vec<String>,
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
     pub app_focus: AppFocus
@@ -30,6 +31,7 @@ impl ToDoApp {
             file_manager_width: 20,
             file_manage_path: String::new(),
             file_item: None,
+            file_item_str: Vec::new(),
             exit: false,
             tree_state: RefCell::new(ListState::default()),
             app_focus: AppFocus::FileManager
@@ -87,14 +89,17 @@ impl ToDoApp {
     // 選択解除
     fn select_none(&mut self) {
         self.tree_state.borrow_mut().select(None);
+        self.create_file_path();
     }
     // 1個後へ
     fn select_next(&mut self) {
         self.tree_state.borrow_mut().select_next();
+        self.create_file_path();
     }
     // 1個前へ
     fn select_previous(&mut self) {
         self.tree_state.borrow_mut().select_previous();
+        self.create_file_path();
     }
     // 最初の場所へ
     fn select_first(&mut self) {
@@ -121,10 +126,24 @@ impl ToDoApp {
     fn exit(&mut self) {
         self.exit = true;
     }
+
+    // インデントからパスの組み立て
+    fn create_file_path(&mut self) {
+        // 選択中のインデックス
+        let index = self.tree_state.borrow().selected();
+        // 文字列のリスト
+        if let Some(item_list) = self.file_item.as_ref() {
+            
+        }
+        // self.file_item_str = self.file_item.unwrap()
+        // if let Some(index) = index {
+
+        // }
+    }
 }
 
 // 描画用の処理
-impl Widget for & ToDoApp {
+impl Widget for &ToDoApp {
     fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
         let layout = Layout::default()
             .direction(Direction::Horizontal)
@@ -138,7 +157,7 @@ impl Widget for & ToDoApp {
                 .title(Line::from(root_item.get_name()).centered())
                 .border_set(border::THICK);
 
-            let tree_items: Vec<String> = root_item.tree_to_string_without_root();
+            let tree_items = root_item.tree_to_string_without_root();
             let tree = List::new(tree_items)
                 .block(left_block)
                 .highlight_style(Style::default().bg(Color::Cyan).add_modifier(Modifier::BOLD));
@@ -150,7 +169,7 @@ impl Widget for & ToDoApp {
         let right_block = Block::bordered()
             .border_set(border::THICK);
 
-        Paragraph::new(Text::from("test"))
+        Paragraph::new(Text::from(self.file_manage_path.clone()))
             .block(right_block)
             .render(layout[1], buf);
     }
