@@ -61,10 +61,23 @@ impl FileItem {
             return Ok(FileItem::new(&root_path));
         } else {
             let mut file_item = FileItem::new(&root_path);
-            let entries = root_path.read_dir()?;
+            
+            // 1. ディレクトリ内のエントリをすべて読み込む
+            let mut entries: Vec<_> = root_path.read_dir()?
+                .filter_map(Result::ok) // エラーが発生したエントリは無視する
+                .collect();
 
+            // 2. エントリをソートする（フォルダ優先、その後名前順）
+            entries.sort_by(|a, b| {
+                let path_a = a.path();
+                let path_b = b.path();
+                // is_dir()はフォルダならtrueを返す。true > false なので、bとaを比較(is_dir_b.cmp(&is_dir_a))することで降順ソート（フォルダが先頭）になる
+                path_b.is_dir().cmp(&path_a.is_dir())
+                    .then_with(|| a.file_name().cmp(&b.file_name()))
+            });
+
+            // 3. ソートされたエントリを処理する
             for entry in entries {
-                let entry = entry?;
                 let path = entry.path();
 
                 if path.is_file() {
