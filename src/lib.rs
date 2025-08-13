@@ -75,6 +75,7 @@ impl CuiEditor {
             (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Esc) => self.select_none(),
             (AppFocus::FileManager, KeyModifiers::SHIFT, KeyCode::Right) => self.change_large(),
             (AppFocus::FileManager, KeyModifiers::SHIFT, KeyCode::Left) => self.change_small(),
+            (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Enter) => self.toggle_selected_directory(),
             _ => {}
         }
         
@@ -115,6 +116,29 @@ impl CuiEditor {
         self.file_manager_width -= 5;
     }
 
+    // 現在選択されているFileItemを取得する
+    fn get_selected_item(&self) -> Option<&FileItem> {
+        let selected_index = self.tree_state.borrow().selected();
+        if let (Some(index), Some(root_item)) = (selected_index, self.file_item.as_ref()) {
+            return root_item.get_item_from_flat_index(index);
+        }
+        None
+    }
+
+    // 選択されているディレクトリの開閉を切り替える
+    fn toggle_selected_directory(&mut self) {
+        let selected_path = self
+            .get_selected_item()
+            .map(|item| item.get_path().to_path_buf());
+
+        if let Some(path) = selected_path {
+            if let Some(root_item) = self.file_item.as_mut() {
+                if let Some(item_to_toggle) = root_item.find_item_by_path_mut(&path) {
+                    item_to_toggle.toggle_open();
+                }
+            }
+        }
+    }
 }
 
 // アプリの状態変更用の関数

@@ -113,5 +113,53 @@ impl FileItem {
             }
         }
     }
+
+    // 可視ツリーをフラットなVecにして、そこから選択されたFileItemを返す
+    pub fn get_item_from_flat_index(&self, index: usize) -> Option<&Self> {
+        let mut flat_list = Vec::new();
+        if let Some(items) = &self.items {
+            for item in items {
+                item.flatten_to_vec(&mut flat_list);
+            }
+        }
+        flat_list.get(index).copied()
+    }
+
+    // ツリーをフラットなVec<&FileItem>に変換する再帰関数
+    fn flatten_to_vec<'a>(&'a self, vec: &mut Vec<&'a Self>) {
+        vec.push(self);
+        // 子アイテムがあって、開いてたら再帰処理
+        if self.is_open.unwrap_or(false) {
+            if let Some(items) = &self.items {
+                for item in items {
+                    item.flatten_to_vec(vec);
+                }
+            }
+        }
+    }
+
+    // パスをもとに可変のFileItemを探す
+    pub fn find_item_by_path_mut<'a>(&'a mut self, path: &std::path::Path) -> Option<&'a mut Self> {
+        if self.path == path {
+            return Some(self);
+        }
+        if let Some(items) = &mut self.items {
+            for item in items {
+                if let Some(found) = item.find_item_by_path_mut(path) {
+                    return Some(found);
+                }
+            }
+        }
+        None
+    }
+
+    // ディレクトリの開閉状態を切り替える
+    pub fn toggle_open(&mut self) {
+        if self.items.is_some() { // ディレクトリかどうか
+            if let Some(is_open) = self.is_open.as_mut() {
+                *is_open = !*is_open;
+            }
+        }
+    }
 }
 
