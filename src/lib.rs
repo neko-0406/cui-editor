@@ -6,7 +6,7 @@ use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, 
 mod file_manager;
 use file_manager::FileItem;
 // use setting;
-pub struct ToDoApp {
+pub struct CuiEditor {
     pub file_manager_width: u16,
     pub file_manage_path: String,
     pub file_item: Option<FileItem>,
@@ -24,7 +24,7 @@ pub enum AppFocus {
 }
 
 // 実行、描画、イベントハンドル
-impl ToDoApp {
+impl CuiEditor {
     // アプリの変数初期化
     pub fn new() -> Result<Self, Error> {
         let mut app = Self {
@@ -89,17 +89,14 @@ impl ToDoApp {
     // 選択解除
     fn select_none(&mut self) {
         self.tree_state.borrow_mut().select(None);
-        self.create_file_path();
     }
     // 1個後へ
     fn select_next(&mut self) {
         self.tree_state.borrow_mut().select_next();
-        self.create_file_path();
     }
     // 1個前へ
     fn select_previous(&mut self) {
         self.tree_state.borrow_mut().select_previous();
-        self.create_file_path();
     }
     // 最初の場所へ
     fn select_first(&mut self) {
@@ -121,29 +118,16 @@ impl ToDoApp {
 }
 
 // アプリの状態変更用の関数
-impl ToDoApp {
+impl CuiEditor {
     // 終了フラグ
     fn exit(&mut self) {
         self.exit = true;
     }
-
-    // インデントからパスの組み立て
-    fn create_file_path(&mut self) {
-        // 選択中のインデックス
-        let index = self.tree_state.borrow().selected();
-        // 文字列のリスト
-        if let Some(item_list) = self.file_item.as_ref() {
-            
-        }
-        // self.file_item_str = self.file_item.unwrap()
-        // if let Some(index) = index {
-
-        // }
-    }
+    
 }
 
 // 描画用の処理
-impl Widget for &ToDoApp {
+impl Widget for &CuiEditor {
     fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
         let layout = Layout::default()
             .direction(Direction::Horizontal)

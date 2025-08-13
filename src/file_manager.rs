@@ -1,6 +1,6 @@
 use std::{io, path::{Path, PathBuf}};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct FileItem {
     name: String,
     path: PathBuf,
@@ -85,14 +85,14 @@ impl FileItem {
         // ルートの子要素があれば、それらを直接表示
         if let Some(items) = &self.items {
             for item in items {
-                item.flatten_tree(&mut result, 0); // レベル0から開始
+                item.flatten_tree_str(&mut result, 0); // レベル0から開始
             }
         }
         
         result
     }
 
-    fn flatten_tree(&self, result: &mut Vec<String>, level: usize) {
+    fn flatten_tree_str(&self, result: &mut Vec<String>, level: usize) {
         // インデントの作成
         let indent = " ".repeat(level);
         // アイコンの選定
@@ -108,7 +108,7 @@ impl FileItem {
         if let Some(items) = &self.items {
             if self.is_open.unwrap_or(false) {
                 for item in items {
-                    item.flatten_tree(result, level + 1);
+                    item.flatten_tree_str(result, level + 1);
                 }
             }
         }
