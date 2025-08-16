@@ -10,6 +10,7 @@ pub struct CuiEditor {
     pub file_manager_width: u16,
     pub file_manage_path: String,
     pub file_item: Option<FileItem>,
+    pub file_contents: String,
     pub file_item_str: Vec<String>,
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
@@ -32,6 +33,7 @@ impl CuiEditor {
             file_manage_path: String::new(),
             file_item: None,
             file_item_str: Vec::new(),
+            file_contents: String::new(),
             exit: false,
             tree_state: RefCell::new(ListState::default()),
             app_focus: AppFocus::FileManager
@@ -75,7 +77,10 @@ impl CuiEditor {
             (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Esc) => self.select_none(),
             (AppFocus::FileManager, KeyModifiers::SHIFT, KeyCode::Right) => self.change_large(),
             (AppFocus::FileManager, KeyModifiers::SHIFT, KeyCode::Left) => self.change_small(),
-            (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Enter) => self.toggle_selected_directory(),
+            (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Enter) => {
+                self.toggle_selected_directory();
+                self.selected_file_display();
+            }
             _ => {}
         }
         
@@ -139,6 +144,18 @@ impl CuiEditor {
             }
         }
     }
+
+    // 選択されたファイルの中身を右のエリアに表示する
+    fn selected_file_display(&mut self) {
+        let selected_path = self.get_selected_item();
+        if let Some(item) = selected_path {
+            if item.get_path().is_file() {
+                if let  Some(content) = item.read_file() {
+                    self.file_contents = content;
+                }
+            }
+        }
+    }
 }
 
 // アプリの状態変更用の関数
@@ -177,7 +194,13 @@ impl Widget for &CuiEditor {
         let right_block = Block::bordered()
             .border_set(border::THICK);
 
-        Paragraph::new(Text::from(self.file_manage_path.clone()))
+        // let content = &self.file_contents;
+        // let mut text = Text::from("");
+        // if let Some(result) = content {
+        //     text = Text::from(result.clone());
+        // }
+
+        Paragraph::new(Text::from(self.file_contents.clone()))
             .block(right_block)
             .render(layout[1], buf);
     }
