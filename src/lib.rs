@@ -101,7 +101,7 @@ impl CuiEditor {
         match (key_event.modifiers, key_event.code) {
             (KeyModifiers::CONTROL ,KeyCode::Char('q')) => self.exit(),
             (KeyModifiers::ALT, KeyCode::Char('e')) => self.focus_editor(),
-            (KeyModifiers::ALT, KeyCode::Char('f')) => self.focus_filemanager(),
+            (KeyModifiers::ALT, KeyCode::Char('f')) => self.focus_file_manager(),
             _ => {}
         }
     }
@@ -189,7 +189,7 @@ impl CuiEditor {
         self.exit = true;
     }
     // フォーカスの変更
-    fn focus_filemanager(&mut self) {
+    fn focus_file_manager(&mut self) {
         if self.app_focus == AppFocus::Editor {
             self.app_focus = AppFocus::FileManager;
         }
