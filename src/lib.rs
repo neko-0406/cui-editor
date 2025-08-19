@@ -14,16 +14,23 @@ pub struct CuiEditor {
     pub file_item_str: Vec<String>,
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
-    pub app_focus: AppFocus
+    pub app_focus: AppFocus,
+    pub edit_mode: EditMode
 }
 
 // フォーカス制御用の列挙
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum AppFocus {
     FileManager,
     Editor,
 }
 
+// エディター操作時のモード
+#[derive(Clone, Copy, PartialEq)]
+pub enum EditMode {
+    Write,
+    View,
+}
 // 実行、描画、イベントハンドル
 impl CuiEditor {
     // アプリの変数初期化
@@ -36,7 +43,8 @@ impl CuiEditor {
             file_contents: String::new(),
             exit: false,
             tree_state: RefCell::new(ListState::default()),
-            app_focus: AppFocus::FileManager
+            app_focus: AppFocus::FileManager,
+            edit_mode: EditMode::View
         };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
@@ -83,10 +91,17 @@ impl CuiEditor {
             }
             _ => {}
         }
+        // エディター
+        match (self.app_focus, key_event.modifiers, key_event.code ){
+            (AppFocus::Editor, KeyModifiers::ALT, KeyCode::Char('c')) => self.change_edit_mode(),
+            _ => {}
+        }
         
         // グローバル
         match (key_event.modifiers, key_event.code) {
             (KeyModifiers::CONTROL ,KeyCode::Char('q')) => self.exit(),
+            (KeyModifiers::ALT, KeyCode::Char('e')) => self.focus_editor(),
+            (KeyModifiers::ALT, KeyCode::Char('f')) => self.focus_filemanager(),
             _ => {}
         }
     }
@@ -152,8 +167,17 @@ impl CuiEditor {
             if item.get_path().is_file() {
                 if let  Some(content) = item.read_file() {
                     self.file_contents = content;
+                    self.focus_editor();
                 }
             }
+        }
+    }
+
+    // エディターのモード変更
+    fn change_edit_mode(&mut self) {
+        match self.edit_mode {
+            EditMode::View => self.edit_mode = EditMode::Write,
+            EditMode::Write => self.edit_mode = EditMode::View
         }
     }
 }
@@ -164,7 +188,18 @@ impl CuiEditor {
     fn exit(&mut self) {
         self.exit = true;
     }
-    
+    // フォーカスの変更
+    fn focus_filemanager(&mut self) {
+        if self.app_focus == AppFocus::Editor {
+            self.app_focus = AppFocus::FileManager;
+        }
+    }
+    fn focus_editor(&mut self) {
+        if self.app_focus == AppFocus::FileManager {
+            self.app_focus = AppFocus::Editor
+        }
+    }
+
 }
 
 // 描画用の処理
