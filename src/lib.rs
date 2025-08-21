@@ -1,5 +1,4 @@
 use std::{cell::RefCell, env::current_dir, io::{self, Error}};
-
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, StatefulWidget, Widget}, DefaultTerminal, Frame};
 
@@ -213,9 +212,13 @@ impl Widget for &CuiEditor {
         // 左側のエリア
         // 現在のディレクトリツリーを表示
         if let Some(root_item) = self.file_item.as_ref() {
-            let left_block = Block::bordered()
+            let mut left_block = Block::bordered()
                 .title(Line::from(root_item.get_name()).centered())
                 .border_set(border::THICK);
+
+            if self.app_focus == AppFocus::FileManager {
+                left_block = left_block.border_style(Style::default().fg(Color::LightBlue));
+            }
 
             let tree_items = root_item.tree_to_string_without_root();
             let tree = List::new(tree_items)
@@ -226,14 +229,12 @@ impl Widget for &CuiEditor {
         }
 
         // 右側のエリア
-        let right_block = Block::bordered()
+        let mut right_block = Block::bordered()
             .border_set(border::THICK);
 
-        // let content = &self.file_contents;
-        // let mut text = Text::from("");
-        // if let Some(result) = content {
-        //     text = Text::from(result.clone());
-        // }
+        if self.app_focus == AppFocus::Editor {
+            right_block = right_block.border_style(Style::default().fg(Color::LightBlue));
+        }
 
         Paragraph::new(Text::from(self.file_contents.clone()))
             .block(right_block)
