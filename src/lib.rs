@@ -1,6 +1,6 @@
 use std::{cell::RefCell, env::current_dir, io::{self, Error}};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, StatefulWidget, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, ScrollbarState, StatefulWidget, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
@@ -14,7 +14,12 @@ pub struct CuiEditor {
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
     pub app_focus: AppFocus,
-    pub edit_mode: EditMode
+    pub edit_mode: EditMode,
+    // スクロールバー関連
+    pub vertical_scroll_state: ScrollbarState,
+    pub horizontal_scroll_state: ScrollbarState,
+    pub vertical_scroll: usize,
+    pub horizontal_scroll: usize
 }
 
 // フォーカス制御用の列挙
@@ -43,7 +48,11 @@ impl CuiEditor {
             exit: false,
             tree_state: RefCell::new(ListState::default()),
             app_focus: AppFocus::FileManager,
-            edit_mode: EditMode::View
+            edit_mode: EditMode::View,
+            vertical_scroll_state: ScrollbarState::default(),
+            horizontal_scroll_state: ScrollbarState::default(),
+            vertical_scroll: 0,
+            horizontal_scroll: 0
         };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
@@ -93,6 +102,10 @@ impl CuiEditor {
         // エディター
         match (self.app_focus, key_event.modifiers, key_event.code ){
             (AppFocus::Editor, KeyModifiers::ALT, KeyCode::Char('c')) => self.change_edit_mode(),
+            (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Up) => self.scroll_up(),
+            (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Down) => self.scroll_down(),
+            (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Left) => self.scroll_left(),
+            (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Right) => self.scroll_right(),
             _ => {}
         }
         
@@ -178,6 +191,26 @@ impl CuiEditor {
             EditMode::View => self.edit_mode = EditMode::Write,
             EditMode::Write => self.edit_mode = EditMode::View
         }
+    }
+
+    fn scroll_down(&mut self) {
+        self.vertical_scroll = self.vertical_scroll.saturating_add(1);
+        self.vertical_scroll_state = self.vertical_scroll_state.position(self.vertical_scroll);
+    }
+
+    fn scroll_up(&mut self) {
+        self.vertical_scroll = self.vertical_scroll.saturating_sub(1);
+        self.vertical_scroll_state = self.vertical_scroll_state.position(self.vertical_scroll);
+    }
+
+    fn scroll_left(&mut self) {
+        self.horizontal_scroll = self.horizontal_scroll.saturating_sub(1);
+        self.horizontal_scroll_state = self.horizontal_scroll_state.position(self.horizontal_scroll);
+    }
+
+    fn scroll_right(&mut self) {
+        self.horizontal_scroll = self.horizontal_scroll.saturating_add(1);
+        self.horizontal_scroll_state = self.horizontal_scroll_state.position(self.horizontal_scroll);
     }
 }
 
