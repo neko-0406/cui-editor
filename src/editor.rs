@@ -8,8 +8,10 @@ pub enum EditMode {
 }
 
 pub struct Editor {
-    content: String,            // 表示する内容
-
+    // 表示する内容
+    pub content: String,
+    // モード
+    pub edit_mode: EditMode,
     // スクロールバー関係
     pub vertical_scroll_state: ScrollbarState,
     pub horizontal_scroll_state: ScrollbarState,
@@ -47,5 +49,13 @@ impl Editor {
     fn scroll_right(&mut self) {
         self.horizontal_scroll = self.horizontal_scroll.saturating_add(1);
         self.horizontal_scroll_state = self.horizontal_scroll_state.position(self.horizontal_scroll);
+    }
+
+        // エディターのモード変更
+    fn change_edit_mode(&mut self) {
+        match self.edit_mode {
+            EditMode::View => self.edit_mode = EditMode::Write,
+            EditMode::Write => self.edit_mode = EditMode::View
+        }
     }
 }

@@ -1,12 +1,16 @@
 use std::{cell::RefCell, env::current_dir, io::{self, Error}};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, ScrollbarState, StatefulWidget, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, ScrollbarState, StatefulWidget, Tabs, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
 
 mod editor;
 use editor::EditMode;
+
+use crate::tab::TabContainer;
+
+mod tab;
 // use setting;
 pub struct CuiEditor {
     pub file_manager_width: u16,
@@ -17,7 +21,8 @@ pub struct CuiEditor {
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
     pub app_focus: AppFocus,
-    pub edit_mode: EditMode,
+    pub tab_container: TabContainer,
+
 }
 
 // フォーカス制御用の列挙
@@ -40,7 +45,7 @@ impl CuiEditor {
             exit: false,
             tree_state: RefCell::new(ListState::default()),
             app_focus: AppFocus::FileManager,
-            edit_mode: EditMode::View,
+            tab_container: TabContainer::new()
         };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
@@ -85,15 +90,6 @@ impl CuiEditor {
                 self.toggle_selected_directory();
                 self.selected_file_display();
             }
-            _ => {}
-        }
-        // エディター
-        match (self.app_focus, key_event.modifiers, key_event.code ){
-            (AppFocus::Editor, KeyModifiers::ALT, KeyCode::Char('c')) => self.change_edit_mode(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Up) => self.scroll_up(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Down) => self.scroll_down(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Left) => self.scroll_left(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Right) => self.scroll_right(),
             _ => {}
         }
         
@@ -172,14 +168,6 @@ impl CuiEditor {
             }
         }
     }
-
-    // エディターのモード変更
-    fn change_edit_mode(&mut self) {
-        match self.edit_mode {
-            EditMode::View => self.edit_mode = EditMode::Write,
-            EditMode::Write => self.edit_mode = EditMode::View
-        }
-    }
 }
 
 // アプリの状態変更用の関数
@@ -230,15 +218,16 @@ impl Widget for &CuiEditor {
         }
 
         // 右側のエリア
-        let mut right_block = Block::bordered()
-            .border_set(border::THICK);
+        // let mut right_block = Block::bordered()
+        //     .border_set(border::THICK);
 
-        if self.app_focus == AppFocus::Editor {
-            right_block = right_block.border_style(Style::default().fg(Color::LightBlue));
-        }
+        // if self.app_focus == AppFocus::Editor {
+        //     right_block = right_block.border_style(Style::default().fg(Color::LightBlue));
+        // }
 
-        Paragraph::new(Text::from(self.file_contents.clone()))
-            .block(right_block)
-            .render(layout[1], buf);
+        // Paragraph::new(Text::from(self.file_contents.clone()))
+        //     .block(right_block)
+        //     .render(layout[1], buf);
+        
     }
 }
