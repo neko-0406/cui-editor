@@ -17,7 +17,6 @@ pub struct CuiEditor {
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
     pub app_focus: AppFocus,
-    pub edit_mode: EditMode,
 }
 
 // フォーカス制御用の列挙
@@ -40,7 +39,6 @@ impl CuiEditor {
             exit: false,
             tree_state: RefCell::new(ListState::default()),
             app_focus: AppFocus::FileManager,
-            edit_mode: EditMode::View,
         };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
@@ -89,11 +87,6 @@ impl CuiEditor {
         }
         // エディター
         match (self.app_focus, key_event.modifiers, key_event.code ){
-            (AppFocus::Editor, KeyModifiers::ALT, KeyCode::Char('c')) => self.change_edit_mode(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Up) => self.scroll_up(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Down) => self.scroll_down(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Left) => self.scroll_left(),
-            // (AppFocus::Editor,KeyModifiers::NONE, KeyCode::Right) => self.scroll_right(),
             _ => {}
         }
         
@@ -170,14 +163,6 @@ impl CuiEditor {
                     self.focus_editor();
                 }
             }
-        }
-    }
-
-    // エディターのモード変更
-    fn change_edit_mode(&mut self) {
-        match self.edit_mode {
-            EditMode::View => self.edit_mode = EditMode::Write,
-            EditMode::Write => self.edit_mode = EditMode::View
         }
     }
 }
