@@ -22,7 +22,6 @@ pub struct CuiEditor {
     pub tree_state: RefCell<ListState>,
     pub app_focus: AppFocus,
     pub tab_container: TabContainer,
-
 }
 
 // フォーカス制御用の列挙
@@ -218,16 +217,23 @@ impl Widget for &CuiEditor {
         }
 
         // 右側のエリア
-        // let mut right_block = Block::bordered()
-        //     .border_set(border::THICK);
+        let mut right_block = Block::bordered()
+            .border_set(border::THICK);
 
-        // if self.app_focus == AppFocus::Editor {
-        //     right_block = right_block.border_style(Style::default().fg(Color::LightBlue));
-        // }
+        if self.app_focus == AppFocus::Editor {
+            right_block = right_block.border_style(Style::default().fg(Color::LightBlue));
+        }
 
         // Paragraph::new(Text::from(self.file_contents.clone()))
         //     .block(right_block)
         //     .render(layout[1], buf);
-        
+        // self.tab_container.render_tab(area, right_block, buf);
+
+        Tabs::new(self.tab_container.tab_labels.clone())
+            .block(right_block)
+            .highlight_style(Style::default().fg(Color::Cyan))
+            .render(area, buf);
+
+
     }
 }
