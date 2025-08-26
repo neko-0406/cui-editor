@@ -6,8 +6,8 @@ mod file_manager;
 use file_manager::FileItem;
 
 mod editor;
-use editor::EditMode;
-// use setting;
+
+mod tab;
 pub struct CuiEditor {
     pub file_manager_width: u16,
     pub file_manage_path: String,
