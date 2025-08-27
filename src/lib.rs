@@ -5,6 +5,8 @@ use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, 
 mod file_manager;
 use file_manager::FileItem;
 
+use crate::tab::{Tab, TabContainer};
+
 mod editor;
 
 mod tab;
@@ -17,6 +19,7 @@ pub struct CuiEditor {
     pub exit: bool,
     pub tree_state: RefCell<ListState>,
     pub app_focus: AppFocus,
+    pub tab_container: TabContainer,
 }
 
 // フォーカス制御用の列挙
@@ -39,6 +42,7 @@ impl CuiEditor {
             exit: false,
             tree_state: RefCell::new(ListState::default()),
             app_focus: AppFocus::FileManager,
+            tab_container: TabContainer::new(),
         };
         // 呼び出された現在のフォルダを開く
         let current_dir = current_dir()?;
@@ -160,10 +164,19 @@ impl CuiEditor {
             if item.get_path().is_file() {
                 if let  Some(content) = item.read_file() {
                     self.file_contents = content;
-                    self.focus_editor();
                 }
             }
         }
+    }
+
+    // 選択されたファイルの中身を新しいタブとして表示する
+    fn selected_file_display_tab(&mut self) -> Result<(), io::Error> {
+        if let Some(item) =  self.get_selected_item() {
+            let path = item.get_path();
+            let file_name = path.file_name();
+        }
+
+        ()
     }
 }
 
