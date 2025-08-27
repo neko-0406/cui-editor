@@ -7,18 +7,31 @@ pub enum EditMode {
     View,
 }
 
+#[derive(Clone)]
 pub struct Editor {
-    content: String,            // 表示する内容
-
+    // 表示する内容
+    pub content: String,
     // スクロールバー関係
     pub vertical_scroll_state: ScrollbarState,
     pub horizontal_scroll_state: ScrollbarState,
     pub vertical_scroll: usize,
-    pub horizontal_scroll: usize
+    pub horizontal_scroll: usize,
+    pub edit_mode: EditMode
 }
 
 // 内容関係の処理
 impl Editor {
+    pub fn new() -> Self {
+        Self {
+            content: String::new(),
+            vertical_scroll_state: ScrollbarState::default(),
+            horizontal_scroll_state: ScrollbarState::default(),
+            vertical_scroll: 0,
+            horizontal_scroll: 0,
+            edit_mode: EditMode::View
+        }
+    }
+
     pub fn get_content(&self) -> &str {
         return &self.content;
     }
