@@ -1,6 +1,6 @@
 use std::{cell::RefCell, env::current_dir, io::{self, Error}};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, ScrollbarState, StatefulWidget, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, StatefulWidget, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
