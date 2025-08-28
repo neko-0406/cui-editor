@@ -1,6 +1,6 @@
 use std::{cell::RefCell, env::current_dir, io::{self, Error}};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, StatefulWidget, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, StatefulWidget, Tabs, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
@@ -97,8 +97,7 @@ impl CuiEditor {
         // グローバル
         match (key_event.modifiers, key_event.code) {
             (KeyModifiers::CONTROL ,KeyCode::Char('q')) => self.exit(),
-            (KeyModifiers::ALT, KeyCode::Char('e')) => self.focus_editor(),
-            (KeyModifiers::ALT, KeyCode::Char('f')) => self.focus_file_manager(),
+            (KeyModifiers::ALT, KeyCode::Char('e')) => self.focus_change_toggle(),
             _ => {}
         }
     }
@@ -176,7 +175,7 @@ impl CuiEditor {
             let file_name = path.file_name();
         }
 
-        ()
+        return Ok(());
     }
 }
 
@@ -187,14 +186,11 @@ impl CuiEditor {
         self.exit = true;
     }
     // フォーカスの変更
-    fn focus_file_manager(&mut self) {
-        if self.app_focus == AppFocus::Editor {
-            self.app_focus = AppFocus::FileManager;
-        }
-    }
-    fn focus_editor(&mut self) {
+    fn focus_change_toggle(&mut self) {
         if self.app_focus == AppFocus::FileManager {
             self.app_focus = AppFocus::Editor
+        } else {
+            self.app_focus = AppFocus::FileManager;
         }
     }
 
@@ -235,8 +231,15 @@ impl Widget for &CuiEditor {
             right_block = right_block.border_style(Style::default().fg(Color::LightBlue));
         }
 
-        Paragraph::new(Text::from(self.file_contents.clone()))
+        let tab_titles = self.tab_container.get_tabs()
+            .iter()
+            .map(|tab| Line::from(tab.title.clone()))
+            .collect::<Vec<Line>>();
+
+        Tabs::new(tab_titles)
+            .select(self.tab_container.get_selected_index())
             .block(right_block)
             .render(layout[1], buf);
+
     }
 }
