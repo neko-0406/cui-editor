@@ -1,3 +1,5 @@
+use std::{fs::File, path::{Path, PathBuf}};
+
 use ratatui::widgets::ScrollbarState;
 
 // エディター操作時のモード
@@ -11,6 +13,7 @@ pub enum EditMode {
 pub struct Editor {
     // 表示する内容
     pub content: String,
+    pub file_path: PathBuf,
     // スクロールバー関係
     pub vertical_scroll_state: ScrollbarState,
     pub horizontal_scroll_state: ScrollbarState,
@@ -21,8 +24,9 @@ pub struct Editor {
 
 // 内容関係の処理
 impl Editor {
-    pub fn new() -> Self {
+    pub fn new(file_path: &Path) -> Self {
         Self {
+            file_path: file_path.to_path_buf(),
             content: String::new(),
             vertical_scroll_state: ScrollbarState::default(),
             horizontal_scroll_state: ScrollbarState::default(),
@@ -60,5 +64,20 @@ impl Editor {
     fn scroll_right(&mut self) {
         self.horizontal_scroll = self.horizontal_scroll.saturating_add(1);
         self.horizontal_scroll_state = self.horizontal_scroll_state.position(self.horizontal_scroll);
+    }
+}
+
+// IO関係の処理
+impl Editor {
+    //ファイルパスから中身の取得
+    fn read_file(&mut self) {
+        let path = self.file_path.as_path();
+        let file = File::open(path);
+        match file {
+            Ok(file) => {
+                
+            },
+            Err(msg) => {}
+        }
     }
 }
