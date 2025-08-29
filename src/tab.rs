@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use crate::editor::Editor;
 
 #[derive(Clone)]
@@ -8,8 +10,8 @@ pub struct Tab {
 }
 
 impl Tab {
-    pub fn new(title: &str, content: &str) -> Self {
-        Self { title: title.to_owned(), content: content.to_owned(), editor: Editor::new() }
+    pub fn new(title: &str, content: &str, file_path: &Path) -> Self {
+        Self { title: title.to_owned(), content: content.to_owned(), editor: Editor::new(file_path) }
     }
 }
 
