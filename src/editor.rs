@@ -1,4 +1,4 @@
-use std::{fs::File, path::{Path, PathBuf}};
+use std::{fs::File, io::{Read}, path::{Path, PathBuf}};
 
 use ratatui::widgets::ScrollbarState;
 
@@ -24,16 +24,26 @@ pub struct Editor {
 
 // 内容関係の処理
 impl Editor {
+    // 初期化処理
     pub fn new(file_path: &Path) -> Self {
-        Self {
-            file_path: file_path.to_path_buf(),
-            content: String::new(),
-            vertical_scroll_state: ScrollbarState::default(),
-            horizontal_scroll_state: ScrollbarState::default(),
-            vertical_scroll: 0,
-            horizontal_scroll: 0,
+        let pathbuf = file_path.to_path_buf();
+        let mut content = String::new();
+        let vertical_scroll_state = ScrollbarState::default();
+        let horizontal_scroll_state = ScrollbarState::default();
+        let vertical_scroll: usize = 0;
+        let horizontal_scroll: usize = 0;
+
+        Editor::read_file(&pathbuf, &mut content);
+
+        return Self {
+            file_path: pathbuf,
+            content: content,
+            vertical_scroll_state: vertical_scroll_state,
+            horizontal_scroll_state: horizontal_scroll_state,
+            vertical_scroll: vertical_scroll,
+            horizontal_scroll: horizontal_scroll,
             edit_mode: EditMode::View
-        }
+        };
     }
 
     pub fn get_content(&self) -> &str {
@@ -70,14 +80,9 @@ impl Editor {
 // IO関係の処理
 impl Editor {
     //ファイルパスから中身の取得
-    fn read_file(&mut self) {
-        let path = self.file_path.as_path();
-        let file = File::open(path);
-        match file {
-            Ok(file) => {
-                
-            },
-            Err(msg) => {}
-        }
+    pub fn read_file(path: &Path, content: &mut String) {
+        let mut file = File::open(path).expect("Failed to open file...");
+        file.read_to_string(content)
+            .expect("Failed to open file...");
     }
 }

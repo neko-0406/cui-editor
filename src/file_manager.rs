@@ -48,13 +48,6 @@ impl FileItem {
             items.push(item);
         }
     }
-    // フォルダの状態を取得
-    pub fn _get__dir_opened(&self) -> Option<bool> {
-        if let Some(opened) = self.is_open {
-            return Some(opened)
-        }
-        None
-    }
     // 再帰的にツリーの構築
     pub fn read_tree(root_path: PathBuf) -> Result<FileItem, io::Error> {
         if root_path.is_file() {
