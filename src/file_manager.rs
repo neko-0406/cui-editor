@@ -167,21 +167,5 @@ impl FileItem {
             }
         }
     }
-
-    // ファイルの中身を文字列として返す
-    pub fn read_file(&self) -> Option<String> {
-        if self.path.is_file() {
-            let mut file_contents: String = String::new();
-            let mut file = File::open(&self.path)
-                .expect("file not found...");
-
-            file.read_to_string(&mut file_contents)
-                .expect("something went wrong reading the file");
-
-            Some(file_contents)
-        } else {
-            None
-        }
-    }
 }
 

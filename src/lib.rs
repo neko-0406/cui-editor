@@ -85,7 +85,7 @@ impl CuiEditor {
             (AppFocus::FileManager, KeyModifiers::SHIFT, KeyCode::Left) => self.change_small(),
             (AppFocus::FileManager, KeyModifiers::NONE, KeyCode::Enter) => {
                 self.toggle_selected_directory();
-                self.selected_file_display();
+                self.selected_file_display_tab();
             }
             _ => {}
         }
@@ -156,26 +156,28 @@ impl CuiEditor {
         }
     }
 
-    // 選択されたファイルの中身を右のエリアに表示する
-    fn selected_file_display(&mut self) {
-        let selected_path = self.get_selected_item();
-        if let Some(item) = selected_path {
-            if item.get_path().is_file() {
-                if let  Some(content) = item.read_file() {
-                    self.file_contents = content;
-                }
-            }
-        }
-    }
+    // // 選択されたファイルの中身を右のエリアに表示する
+    // fn selected_file_display(&mut self) {
+    //     let selected_path = self.get_selected_item();
+    //     if let Some(item) = selected_path {
+    //         if item.get_path().is_file() {
+    //             if let  Some(content) = item.read_file() {
+    //                 self.file_contents = content;
+    //             }
+    //         }
+    //     }
+    // }
 
     // 選択されたファイルの中身を新しいタブとして表示する
-    fn selected_file_display_tab(&mut self) -> Result<(), io::Error> {
+    fn selected_file_display_tab(&mut self) {
         if let Some(item) =  self.get_selected_item() {
-            let path = item.get_path();
-            let file_name = path.file_name();
+            if item.get_path().is_file() {
+                let new_tab = Tab::new(item.get_name(), item.get_path());
+                self.tab_container.push_tab(new_tab);
+                let cnt = self.tab_container.get_tabs().len();
+                self.tab_container.set_selected_index(cnt - 1);                
+            }
         }
-
-        return Ok(());
     }
 }
 
@@ -224,6 +226,15 @@ impl Widget for &CuiEditor {
         }
 
         // 右側のエリア
+
+        let right_layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![
+                Constraint::Length(3),
+                Constraint::Length(97)
+            ])
+            .split(layout[1]);
+
         let mut right_block = Block::bordered()
             .border_set(border::THICK);
 
@@ -239,7 +250,14 @@ impl Widget for &CuiEditor {
         Tabs::new(tab_titles)
             .select(self.tab_container.get_selected_index())
             .block(right_block)
-            .render(layout[1], buf);
+            .render(right_layout[0], buf);
+
+                // 選択中タブの内容を表示
+        if let Some(tab) = self.tab_container.get_tabs().get(self.tab_container.get_selected_index()) {
+            let editor_content = &tab.editor.content;
+            let paragraph = Paragraph::new(editor_content.clone());
+            paragraph.render(right_layout[1], buf);
+        }
 
     }
 }
