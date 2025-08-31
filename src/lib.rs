@@ -1,6 +1,6 @@
 use std::{cell::RefCell, env::current_dir, io::{self, Error}};
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, StatefulWidget, Tabs, Widget}, DefaultTerminal, Frame};
+use ratatui::{layout::{Constraint, Direction, Layout}, style::{Color, Modifier, Style, Stylize}, symbols::border, text::{Line, Text}, widgets::{Block, List, ListState, Paragraph, StatefulWidget, Tabs, Widget}, DefaultTerminal, Frame};
 
 mod file_manager;
 use file_manager::FileItem;
@@ -226,7 +226,7 @@ impl Widget for &CuiEditor {
         }
 
         // 右側のエリア
-
+        // 右側上部
         let right_layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![
@@ -235,12 +235,8 @@ impl Widget for &CuiEditor {
             ])
             .split(layout[1]);
 
-        let mut right_block = Block::bordered()
-            .border_set(border::THICK);
-
-        if self.app_focus == AppFocus::Editor {
-            right_block = right_block.border_style(Style::default().fg(Color::LightBlue));
-        }
+        let right_top_block = Block::bordered()
+            .border_set(border::PLAIN);
 
         let tab_titles = self.tab_container.get_tabs()
             .iter()
@@ -249,14 +245,22 @@ impl Widget for &CuiEditor {
 
         Tabs::new(tab_titles)
             .select(self.tab_container.get_selected_index())
-            .block(right_block)
+            .block(right_top_block)
             .render(right_layout[0], buf);
+
+        // 右下部
+        let right_bottom_block = Block::bordered()
+                .border_set(border::PLAIN);
+        // Render using a reference so right_bottom_block is not moved
+        (&right_bottom_block).render(right_layout[1], buf);
+
+        let inner_area = right_bottom_block.inner(right_layout[1]);
 
                 // 選択中タブの内容を表示
         if let Some(tab) = self.tab_container.get_tabs().get(self.tab_container.get_selected_index()) {
             let editor_content = &tab.editor.content;
-            let paragraph = Paragraph::new(editor_content.clone());
-            paragraph.render(right_layout[1], buf);
+            Paragraph::new(editor_content.clone())
+                .render(inner_area, buf);
         }
 
     }
